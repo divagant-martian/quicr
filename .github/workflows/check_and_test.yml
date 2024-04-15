@@ -1,0 +1,47 @@
+name: general checks
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  code-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get latest version of stable Rust
+      uses: moonrepo/setup-rust@v1
+      with:
+          channel: stable
+          cache-target: release
+          components: rustfmt, clippy
+          bins: cargo-audit
+    - name: Check formatting with cargofmt
+      run: cargo fmt -- --check
+    - name: Check for lint warnings
+      run: cargo clippy --all-features -- -D warnings
+    - name: Run cargo audit to identify known security vulnerabilities reported to the RustSec Advisory Database
+      run: cargo audit
+  release-tests-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get latest version of stable Rust
+        uses: moonrepo/setup-rust@v1
+        with:
+            channel: stable
+            cache-target: release
+            bins: cargo-nextest
+      - name: Run tests in release
+        run: cargo nextest run --all --release --tests
+  check-rustdoc-links:
+    name: Check rustdoc intra-doc links
+    runs-on: ubuntu-latest
+    container:
+      image: rust
+    steps:
+    - uses: actions/checkout@v3
+    - name: Check rustdoc links
+      run: RUSTDOCFLAGS="--deny broken_intra_doc_links" cargo doc --verbose --workspace --no-deps --document-private-items
