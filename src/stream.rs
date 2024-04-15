@@ -19,6 +19,22 @@ impl Stream {
     fn abort(&self) {}
 }
 
+enum SendState {
+    /// Ready to accept application data.
+    Ready,
+    /// STREAM OF STREAM_DATA_BLOCKED frames have been sent.
+    /// Allows sending data.
+    Sending,
+    /// A STREAM fram with the FIN bytes has been sent for a gracefull termination.
+    Closing,
+    /// Ack received for a Closing stream.
+    Closed,
+    /// RESET_STREAM frame has been sent.
+    Reseting,
+    /// Ack received for a sent RESET_STREAM.
+    Reset,
+}
+
 /// https://datatracker.ietf.org/doc/html/rfc9000#section-2.1-2
 /// Between 0 and 2^62
 struct Id(u64);
