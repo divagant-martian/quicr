@@ -19,6 +19,7 @@ impl Stream {
     fn abort(&self) {}
 }
 
+/// https://datatracker.ietf.org/doc/html/rfc9000#name-sending-stream-states
 enum SendState {
     /// Ready to accept application data.
     Ready,
@@ -26,13 +27,34 @@ enum SendState {
     /// Allows sending data.
     Sending,
     /// A STREAM fram with the FIN bytes has been sent for a gracefull termination.
+    /// Only retransmits data.
     Closing,
     /// Ack received for a Closing stream.
+    /// Stream is closed.
     Closed,
     /// RESET_STREAM frame has been sent.
     Reseting,
     /// Ack received for a sent RESET_STREAM.
     Reset,
+}
+
+/// https://datatracker.ietf.org/doc/html/rfc9000#name-receiving-stream-states
+enum RecvStatec {
+    /// Initial state of the receiving side of a stream.
+    Receiving,
+    /// A STREAM frame with the FIN bit set was received.
+    ///
+    /// At this point the size of the stream is known and only receives retransmissions.
+    SizeKnown,
+    /// All data has been received. Stream remain in this state until data is sent to the
+    /// application.
+    DataReceived,
+    /// Al data has been sent to the application.
+    DataRead,
+    /// A RESET_STREAM has been received.
+    ResetReceived,
+    /// Application has been informed of the stream ending abruptly duw to a RESET_STREAM frame.
+    ResetRead,
 }
 
 /// https://datatracker.ietf.org/doc/html/rfc9000#section-2.1-2
