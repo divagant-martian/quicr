@@ -2,8 +2,6 @@
 /// Between 0 and 2^62
 struct Id(u64);
 
-struct OutOfBounds;
-
 impl Id {
     const BITS: u8 = 62;
     const MAX_U64: u64 = 2u64.pow(Self::BITS as u32);
@@ -28,6 +26,22 @@ impl Id {
     }
 }
 
+/// [`Id`] is larger than [`Id::MAX`].
+#[derive(Debug, derive_more::Display, derive_more::Error)]
+#[display(fmt = "Id is out of bounds")]
+struct IdOutOfBoundsErr;
+
+impl TryFrom<u64> for Id {
+    type Error = IdOutOfBoundsErr;
+
+    fn try_from(id: u64) -> Result<Self, Self::Error> {
+        if id > Self::MAX_U64 {
+            return Err(IdOutOfBoundsErr);
+        }
+        Ok(Id(id))
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 enum Initiator {
     Client,
@@ -46,17 +60,6 @@ enum Kind {
 
 impl Kind {
     const UNIDIR_BIT: u64 = 0x02;
-}
-
-impl TryFrom<u64> for Id {
-    type Error = OutOfBounds;
-
-    fn try_from(id: u64) -> Result<Self, Self::Error> {
-        if id > Self::MAX_U64 {
-            return Err(OutOfBounds);
-        }
-        Ok(Id(id))
-    }
 }
 
 #[cfg(test)]
