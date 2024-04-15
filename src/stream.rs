@@ -30,19 +30,19 @@ enum SendState {
     Sending,
     /// A STREAM fram with the FIN bytes has been sent for a gracefull termination.
     /// Only retransmits data.
-    Closing,
-    /// Ack received for a Closing stream.
+    DataSent,
+    /// Ack received for a Data Sent stream.
     /// Stream is closed.
     Closed,
     /// RESET_STREAM frame has been sent.
-    Reseting,
+    Resetting,
     /// Ack received for a sent RESET_STREAM.
     Reset,
 }
 
 /// https://datatracker.ietf.org/doc/html/rfc9000#name-receiving-stream-states
 #[derive(Default)]
-enum RecvStatec {
+enum RecvState {
     /// Initial state of the receiving side of a stream.
     #[default]
     Receiving,
@@ -72,6 +72,18 @@ enum SendingFrame {
 enum ReceivingFrame {
     MaxStreamData,
     StopSending,
+}
+
+enum BidiState {
+    /// Sending part is in [`SendState::Ready`].
+    /// Receiving part is in a [`RecvState::Receiving`] state without having received any frame.
+    Idle,
+    /// Sending part is in [`SendState::`].
+    /// Receiving part is in a [`RecvState::Receiving`] state without having received any frame.
+    Open,
+    RemoteClosing,
+    LocallyClosing,
+    Closed,
 }
 
 /// https://datatracker.ietf.org/doc/html/rfc9000#section-2.1-2
