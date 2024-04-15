@@ -1,3 +1,4 @@
+#![allow(unused)]
 struct Stream {
     id: Id,
     // TODO(@divma): type?
@@ -12,7 +13,9 @@ impl Stream {
     fn end(&self) {}
     fn reset(&self) {}
     /* Receiving side */
-    fn read(&self) -> Vec<u8> {}
+    fn read(&self) -> Vec<u8> {
+        vec![]
+    }
     fn abort(&self) {}
 }
 
