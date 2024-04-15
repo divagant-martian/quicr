@@ -19,6 +19,73 @@ impl Stream {
     fn abort(&self) {}
 }
 
+/// https://datatracker.ietf.org/doc/html/rfc9000#name-sending-stream-states
+#[derive(Default)]
+enum SendState {
+    /// Ready to accept application data.
+    #[default]
+    Ready,
+    /// STREAM OF STREAM_DATA_BLOCKED frames have been sent.
+    /// Allows sending data.
+    Sending,
+    /// A STREAM fram with the FIN bytes has been sent for a gracefull termination.
+    /// Only retransmits data.
+    DataSent,
+    /// Ack received for a Data Sent stream.
+    /// Stream is closed.
+    Closed,
+    /// RESET_STREAM frame has been sent.
+    Resetting,
+    /// Ack received for a sent RESET_STREAM.
+    Reset,
+}
+
+/// https://datatracker.ietf.org/doc/html/rfc9000#name-receiving-stream-states
+#[derive(Default)]
+enum RecvState {
+    /// Initial state of the receiving side of a stream.
+    #[default]
+    Receiving,
+    /// A STREAM frame with the FIN bit set was received.
+    ///
+    /// At this point the size of the stream is known and only receives retransmissions.
+    SizeKnown,
+    /// All data has been received. Stream remain in this state until data is sent to the
+    /// application.
+    DataReceived,
+    /// Al data has been sent to the application.
+    DataRead,
+    /// A RESET_STREAM has been received.
+    ResetReceived,
+    /// Application has been informed of the stream ending abruptly duw to a RESET_STREAM frame.
+    ResetRead,
+}
+
+/// Frames than can be sent by the data-sending part of a stream.
+enum SendingFrame {
+    Stream,
+    StreamDataBlocked,
+    ResetStream,
+}
+
+/// Frames that can be sent by the data-receiving part of a stream.
+enum ReceivingFrame {
+    MaxStreamData,
+    StopSending,
+}
+
+enum BidiState {
+    /// Sending part is in [`SendState::Ready`].
+    /// Receiving part is in a [`RecvState::Receiving`] state without having received any frame.
+    Idle,
+    /// Sending part is in [`SendState::`].
+    /// Receiving part is in a [`RecvState::Receiving`] state without having received any frame.
+    Open,
+    RemoteClosing,
+    LocallyClosing,
+    Closed,
+}
+
 /// https://datatracker.ietf.org/doc/html/rfc9000#section-2.1-2
 /// Between 0 and 2^62
 struct Id(u64);
