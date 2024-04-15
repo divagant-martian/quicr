@@ -20,8 +20,10 @@ impl Stream {
 }
 
 /// https://datatracker.ietf.org/doc/html/rfc9000#name-sending-stream-states
+#[derive(Default)]
 enum SendState {
     /// Ready to accept application data.
+    #[default]
     Ready,
     /// STREAM OF STREAM_DATA_BLOCKED frames have been sent.
     /// Allows sending data.
@@ -39,8 +41,10 @@ enum SendState {
 }
 
 /// https://datatracker.ietf.org/doc/html/rfc9000#name-receiving-stream-states
+#[derive(Default)]
 enum RecvStatec {
     /// Initial state of the receiving side of a stream.
+    #[default]
     Receiving,
     /// A STREAM frame with the FIN bit set was received.
     ///
@@ -55,6 +59,19 @@ enum RecvStatec {
     ResetReceived,
     /// Application has been informed of the stream ending abruptly duw to a RESET_STREAM frame.
     ResetRead,
+}
+
+/// Frames than can be sent by the data-sending part of a stream.
+enum SendingFrame {
+    Stream,
+    StreamDataBlocked,
+    ResetStream,
+}
+
+/// Frames that can be sent by the data-receiving part of a stream.
+enum ReceivingFrame {
+    MaxStreamData,
+    StopSending,
 }
 
 /// https://datatracker.ietf.org/doc/html/rfc9000#section-2.1-2
