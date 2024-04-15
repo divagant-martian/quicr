@@ -1,3 +1,21 @@
+struct Stream {
+    id: Id,
+    // TODO(@divma): type?
+    // offset: u8
+}
+
+impl Stream {
+    /* Sending side */
+    fn write(&self, data: &[u8]) -> Result<(), ()> {
+        Ok(())
+    }
+    fn end(&self) {}
+    fn reset(&self) {}
+    /* Receiving side */
+    fn read(&self) -> Vec<u8> {}
+    fn abort(&self) {}
+}
+
 /// https://datatracker.ietf.org/doc/html/rfc9000#section-2.1-2
 /// Between 0 and 2^62
 struct Id(u64);
